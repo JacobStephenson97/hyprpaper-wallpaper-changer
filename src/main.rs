@@ -1,10 +1,18 @@
+use clap::Parser;
 use rand::Rng;
 use std::{
     fs::{self, File},
     io::Write,
 };
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+    #[arg(short, long, default_value_t = 60)]
+    interval: u64,
+}
 
 fn main() {
+    let args = Args::parse();
     let home = home::home_dir().unwrap();
     let mut wallpapers = home.clone();
     wallpapers.push(".wallpapers");
@@ -31,10 +39,10 @@ fn main() {
         .expect("Failed to execute process");
 
     loop {
-        change_wallpaper(&paths);
+        change_wallpaper(&paths, &args);
     }
 }
-fn change_wallpaper(paths: &Vec<String>) {
+fn change_wallpaper(paths: &Vec<String>, args: &Args) {
     let mut rng = rand::thread_rng();
 
     let wallpaper = paths
@@ -51,5 +59,5 @@ fn change_wallpaper(paths: &Vec<String>) {
             .spawn()
             .expect("Failed to execute process");
     }
-    std::thread::sleep(std::time::Duration::from_secs(60));
+    std::thread::sleep(std::time::Duration::from_secs(args.interval));
 }
